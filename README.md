@@ -48,7 +48,7 @@ assert np.allclose(bgr_image, brg_image_loaded)
 ```
 More examples can be found in the tests file [test_openexr_numpy](tests/test_openexr_numpy.py).
 
-The default convention we use for the channels names in the exr file is follows the convention used by imageio and is defined in the global variable `default_channel_names` defined as
+The default convention we use for the channel names in the exr file is follows the convention used by imageio and is defined in the global variable `default_channel_names` defined as
 ```
 default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
 ```

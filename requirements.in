@@ -1,0 +1,17 @@
+typeguard
+mypy
+black
+isort
+flake8
+flake8-isort
+flake8-bugbear
+flake8-builtins
+flake8-docstrings
+pip-tools
+pytest
+pylint
+
+
+
+
+

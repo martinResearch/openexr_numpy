@@ -1,6 +1,6 @@
 # openexr_numpy
 
-A simple interface to the OpenEXR image file format using numpy arrays
+Making reading and writing OpenEXR images in python easy using numpy arrays
 
 ## Example usage 
 
@@ -36,12 +36,12 @@ This can be modified by the user using the function `set_default_channel_names`,
 
 ## Alternative
 
-* [imageio](https://imageio.readthedocs.io/en/stable/) uses the freeimage plugin to load and read exr images, but this plugin does not have a permissive license and thus is not installed by default with imageio and cannot be installed with pip (see issue [here](https://github.com/imageio/imageio/issues/809))
-
 * [opencv-python](https://pypi.org/project/opencv-python/) allows to save and read exr images but it requires to 
-set up a environment variable before the import on windows. See issue [here](https://github.com/opencv/opencv/issues/24470).
+set up a environment variable OPENCV_IO_ENABLE_OPENEXR before the first import of opencv on windows,  which violate pep8 [import rules](https://peps.python.org/pep-0008/#imports) and can be tricky to ensure if the opencv is imported in other modules. See issue [here](https://github.com/opencv/opencv/issues/24470).
 
-* [OpenEXR](https://pypi.org/project/OpenEXR/). This is the official python binding. the documentation for the python API is very limited and the API is quite verbose. Our package is a wrapper around OpenEXR that provides a simpler API using numpy arrays that is similar to opencv snd imagei.o  
+* [imageio](https://imageio.readthedocs.io/en/stable/) uses the either freeimage or the opencv under the hood to load and read exr images. Dreeimage does not have a permissive license and thus is not installed by default with imageio and cannot be installed with pip (see issue [here](https://github.com/imageio/imageio/issues/809)). Installing it requires a manual step that modifies the system by adding the dll in the system path, making it visible to all python environments. Usin opencv under the hood has also limitations a it requires to setup an environment variable (see above). 
+
+* [OpenEXR](https://pypi.org/project/OpenEXR/). This is the official python binding for the OpenEXR file format. The documentation for the python API is very limited and the API is quite verbose. Our package is a wrapper around OpenEXR binding that provides a simpler API using numpy arrays that is similar to opencv and imageio.  
 
 
 

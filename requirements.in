@@ -1,4 +1,5 @@
-typeguard
+
+# dev dependencies
 mypy
 black
 isort
@@ -12,11 +13,12 @@ pytest
 pylint
 
 # required by the package
+# should match the list in install_requires in setup.py
 openexr
 imath
 numpy
 
-# for the tests
+# dependencies to run the tests
 imageio
 opencv-python
 

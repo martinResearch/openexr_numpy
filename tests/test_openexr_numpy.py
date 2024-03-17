@@ -7,8 +7,11 @@ import numpy as np
 
 from openexr_numpy import imread, imwrite
 
-# enable openexr support in opencv
-# this need to be done before the import on windows
+# Enabling openexr support in opencv by settign the
+# OPENCV_IO_ENABLE_OPENEXR environment variable
+# This need to be done before the first import of opencv import on windows
+# which violate pep8 import rules https://peps.python.org/pep-0008/#imports
+# and can be tricky to ensure if the opencv  is imported in other modules.
 os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2  # noqa: E402
 
@@ -117,34 +120,37 @@ def test_exr() -> None:
     assert np.allclose(bgra_image_b, bgra_image)
 
     # test channel names convention consistency with imageio when using 3 channels
-    # imageio seems to converts to float16 silently
-    rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
+    # imageio save the data as float16 and convert to float32 after loading
+    # when using the freeimage plugin (which requires to run a download
+    # step and modifies the system path)
+    # imageio opencv's plugin loads the image as unit8
+    rgba_image = np.random.rand(12, 30, 3).astype(np.float32)
     file_path = "test.exr"
-    imageio.imwrite(file_path, rgb_image)
-    rgb_image_a = imageio.imread(file_path)
-    rgb_image_b = imread(file_path)
-    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
-    assert np.allclose(rgb_image_a.astype(np.float16), rgb_image_b.astype(np.float16))
+    imageio.imwrite(file_path, rgba_image)
+    rgba_image_a = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)[:, :, ::-1]
+    rgba_image_b = imread(file_path)
+    assert np.allclose(rgba_image.astype(np.float16), rgba_image_b.astype(np.float16))
+    assert np.allclose(rgba_image_a.astype(np.float16), rgba_image_b.astype(np.float16))
 
     # test channel names convention consistency with imageio when using 4 channels
     # imageio seems to converts to float16 silently
     rgb_image = np.random.rand(12, 30, 4).astype(np.float32)
     file_path = "test.exr"
     imageio.imwrite(file_path, rgb_image)
-    rgb_image_a = imageio.imread(file_path)
+    rgb_image_a = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)[:, :, [2, 1, 0, 3]]
     rgb_image_b = imread(file_path)
     assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
     assert np.allclose(rgb_image_a.astype(np.float16), rgb_image_b.astype(np.float16))
 
     # test consistency with imageio when using 1 channel
     # imageio convert the image to float16 silently
-    rgb_image = np.random.rand(12, 30).astype(np.float32)
+    grey_image = np.random.rand(12, 30).astype(np.float32)
     file_path = "test.exr"
-    imageio.imwrite(file_path, rgb_image)
-    rgb_image_a = imageio.imread(file_path)
-    rgb_image_b = imread(file_path)
-    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
-    assert np.allclose(rgb_image_a, rgb_image_b)
+    imageio.imwrite(file_path, grey_image)
+    grey_image_a = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+    grey_image_b = imread(file_path)
+    assert np.allclose(grey_image.astype(np.float16), grey_image_b.astype(np.float16))
+    assert np.allclose(grey_image_a, grey_image_b)
 
 
 if __name__ == "__main__":

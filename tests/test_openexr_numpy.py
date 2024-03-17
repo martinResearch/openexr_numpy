@@ -117,24 +117,24 @@ def test_exr() -> None:
     assert np.allclose(bgra_image_b, bgra_image)
 
     # test channel names convention consistency with imageio when using 3 channels
-    # imageio converts to float16 silently
+    # imageio seems to converts to float16 silently
     rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
     file_path = "test.exr"
     imageio.imwrite(file_path, rgb_image)
     rgb_image_a = imageio.imread(file_path)
     rgb_image_b = imread(file_path)
     assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
-    assert np.allclose(rgb_image_a, rgb_image_b)
+    assert np.allclose(rgb_image_a.astype(np.float16), rgb_image_b.astype(np.float16))
 
     # test channel names convention consistency with imageio when using 4 channels
-    # imageio converts to float16 silently
+    # imageio seems to converts to float16 silently
     rgb_image = np.random.rand(12, 30, 4).astype(np.float32)
     file_path = "test.exr"
     imageio.imwrite(file_path, rgb_image)
     rgb_image_a = imageio.imread(file_path)
     rgb_image_b = imread(file_path)
     assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
-    assert np.allclose(rgb_image_a, rgb_image_b)
+    assert np.allclose(rgb_image_a.astype(np.float16), rgb_image_b.astype(np.float16))
 
     # test consistency with imageio when using 1 channel
     # imageio convert the image to float16 silently

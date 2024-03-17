@@ -14,7 +14,7 @@ Writing and reading EXR images with existing package [imageio](https://imageio.r
 
 * [OpenImageIO](https://openimageio.readthedocs.io/en/v2.5.9.0/). This is the library most largely used in the VFX industry to read and write EXR files. Although it is available on anaconda.org [here](https://anaconda.org/conda-forge/openimageio), it is not available on pypi.org yet (issue [here](https://github.com/AcademySoftwareFoundation/OpenImageIO/pull/4011)), which can limit its adoption as a dependency in other packages published on pypi.org.
 
-Our package is a wrapper around OpenEXR binding that: 
+Our package is a wrapper around the official [OpenEXR](https://pypi.org/project/OpenEXR/) python binding that: 
 * can be installed with pip
 * does not require to setup any environment variable before any import 
 * provides `imread` and `imwrite` functions that use NumPy arrays using an API similar to the ones used in opencv and imageio. 

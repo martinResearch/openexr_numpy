@@ -16,7 +16,8 @@ set up a environment variable OPENCV_IO_ENABLE_OPENEXR before the first import o
 Our package is a wrapper around OpenEXR binding that: 
 * can be installed with pip
 * does not require to setup any environment variable before any import 
-* provides a simple API using numpy arrays that is similar to the APIs used in opencv and imageio. 
+* provides `imread` and `imwrite` functions that use numpy arrays using an API similar to the ones used in opencv and imageio. 
+* provides `read` and `write` functions that allow to save and load arbitrary number of channels with heterogenous data types.
 
 ## Example usage 
 

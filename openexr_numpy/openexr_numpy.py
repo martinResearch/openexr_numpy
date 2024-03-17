@@ -1,6 +1,6 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-from typing import Dict, Iterable, Literal, Optional, overload
+from typing import Dict, Iterable, Literal, Optional, Union, overload
 
 import Imath
 import numpy as np
@@ -223,7 +223,7 @@ def read(file_path: str, structured: Literal[True]) -> np.ndarray:
 
 def read(
     file_path: str, structured: bool = False
-) -> np.ndarray | Dict[str, np.ndarray]:
+) -> Union[np.ndarray, Dict[str, np.ndarray]]:
     """Read the data from an EXR file as a structured numpy array."""
     if structured:
         return read_structured_array(file_path)
@@ -231,7 +231,7 @@ def read(
         return read_dict(file_path)
 
 
-def write(file_path: str, data: np.ndarray | Dict[str, np.ndarray]) -> None:
+def write(file_path: str, data: Union[np.ndarray, Dict[str, np.ndarray]]) -> None:
     """Write a structured numpy array or dict to an EXR file."""
     if isinstance(data, np.ndarray):
         write_structured_array(file_path, data)

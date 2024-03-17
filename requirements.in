@@ -1,5 +1,6 @@
 
 # dev dependencies
+ruff
 mypy
 black
 isort

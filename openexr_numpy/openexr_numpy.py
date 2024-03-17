@@ -1,6 +1,6 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-from typing import Iterable, Optional, Dict
+from typing import Dict, Iterable, Optional
 
 import Imath
 import numpy as np

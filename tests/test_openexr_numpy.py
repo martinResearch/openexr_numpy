@@ -16,7 +16,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2  # noqa: E402
 
 
-def test_exr() -> None:
+def test_exr():
 
     # test round trip with float32 1 channel
     rgb_image = np.random.rand(12, 30).astype(np.float32)
@@ -125,7 +125,7 @@ def test_exr() -> None:
     # step and modifies the system path)
     # imageio opencv's plugin loads the image as unit8
     rgba_image = np.random.rand(12, 30, 3).astype(np.float32)
-    file_path ="test.exr"
+    file_path = "test.exr"
     imageio.imwrite(file_path, rgba_image)
     rgba_image_a = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)[:, :, ::-1]
     rgba_image_b = imread(file_path)

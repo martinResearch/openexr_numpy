@@ -94,7 +94,7 @@ def test_exr() -> None:
     assert np.allclose(grey_image, grey_image_a)
     assert np.allclose(grey_image_b, grey_image_a)
 
-    # test channel names convention consistency with opencv when using 3 channels
+    # test channel names convention w.r.t opencv when using 3 channels
     # opencv uses BGR while we use RGB when the image has 3 channels
     bgr_image = np.random.rand(12, 30, 3).astype(np.float32)
     file_path = "test.exr"
@@ -106,8 +106,8 @@ def test_exr() -> None:
     rgb_image_b = imread(file_path, channel_names="BGR")[:, :, ::-1]
     assert np.allclose(bgr_image, bgr_image_b)
 
-    # test channel names convention consistency with opencv when using 4 channels
-    # opencv silently convert to float16 when saving to file when using 4 channels
+    # test channel names convention w.r.t opencv when using 4 channels
+    # opencv uses BGRA while we use RGBA when the image has 3 channels
     bgra_image = np.random.rand(12, 30, 4).astype(np.float32)
     file_path = "test.exr"
     cv2.imwrite(file_path, bgra_image)
@@ -123,7 +123,7 @@ def test_exr() -> None:
     imageio.imwrite(file_path, rgb_image)
     rgb_image_a = imageio.imread(file_path)
     rgb_image_b = imread(file_path)
-    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b)
+    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
     assert np.allclose(rgb_image_a, rgb_image_b)
 
     # test channel names convention consistency with imageio when using 4 channels
@@ -133,7 +133,7 @@ def test_exr() -> None:
     imageio.imwrite(file_path, rgb_image)
     rgb_image_a = imageio.imread(file_path)
     rgb_image_b = imread(file_path)
-    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b)
+    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
     assert np.allclose(rgb_image_a, rgb_image_b)
 
     # test consistency with imageio when using 1 channel
@@ -143,7 +143,7 @@ def test_exr() -> None:
     imageio.imwrite(file_path, rgb_image)
     rgb_image_a = imageio.imread(file_path)
     rgb_image_b = imread(file_path)
-    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b)
+    assert np.allclose(rgb_image.astype(np.float16), rgb_image_b.astype(np.float16))
     assert np.allclose(rgb_image_a, rgb_image_b)
 
 

@@ -4,13 +4,16 @@ Making reading and writing OpenEXR images in python easy using NumPy arrays.
 
 ## Motivation
 
-Writing and reading EXR images with existing package [imageio](https://imageio.readthedocs.io/en/stable/), [opencv-python](https://pypi.org/project/opencv-python/) or [OpenEXR](https://pypi.org/project/OpenEXR/) has currently inconvenient limitations:
+Writing and reading EXR images with existing package [imageio](https://imageio.readthedocs.io/en/stable/), [opencv-python](https://pypi.org/project/opencv-python/), [OpenEXR](https://pypi.org/project/OpenEXR/) or [OpenImageIO](https://openimageio.readthedocs.io/en/v2.5.9.0/) has currently inconvenient limitations:
 
 * [opencv-python](https://pypi.org/project/opencv-python/) allows saving and reading EXR images, but it requires setting up an environment variable, OPENCV_IO_ENABLE_OPENEXR, before the first import of OpenCV on Windows. This violates PEP8 import rules [import rules](https://peps.python.org/pep-0008/#imports) and can be tricky to ensure if OpenCV is imported in other modules. See more information in this issue [here](https://github.com/opencv/opencv/issues/24470).
 
 * [imageio](https://imageio.readthedocs.io/en/stable/) relies on either [freeimage](https://freeimage.sourceforge.io/) or OpenCV under the hood to write and read EXR images. Freeimage does not have a permissive license and thus is not installed by default with imageio and cannot be installed with pip (see issue [here](https://github.com/imageio/imageio/issues/809)). Installing it requires a [manual step](https://imageio.readthedocs.io/en/stable/_autosummary/imageio.plugins.freeimage.html#module-imageio.plugins.freeimage) This requires a manual step to install, which deviates from the traditional Python environment setup process using pip only. Additionally, it modifies the system by adding the FreeImage DLL to the system path, making it visible to all imageio on the machine. Similarly, using OpenCV under the hood also has limitations and requires setting up an environment variable, as mentioned above.
 
 * [OpenEXR](https://pypi.org/project/OpenEXR/). This is the official python binding for the OpenEXR file format. The documentation for the python API is very limited and the API is quite verbose. 
+
+* [OpenImageIO](https://openimageio.readthedocs.io/en/v2.5.9.0/). This is library most largely used in the VFX industry to load and wite EXR files. Unfortunately is is not available on pypi.org yet (issue [here](https://github.com/AcademySoftwareFoundation/OpenImageIO/pull/4011)) which can limit its adoption as a dependency, although it is available on anaconda.org [here](https://anaconda.org/conda-forge/openimageio)
+
 
 Our package is a wrapper around OpenEXR binding that: 
 * can be installed with pip

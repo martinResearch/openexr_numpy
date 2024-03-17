@@ -16,7 +16,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2  # noqa: E402
 
 
-def test_exr()-> None:
+def test_exr() -> None:
 
     # test round trip with float32 1 channel
     rgb_image = np.random.rand(12, 30).astype(np.float32)

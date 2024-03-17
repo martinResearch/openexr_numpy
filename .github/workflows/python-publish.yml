@@ -1,55 +1,36 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# A guide on how to create the screts secrets.PYPI_API_TOKEN and secrets.TEST_PYPI_API_TOKEN
-# here https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
-# The main steps are:
-# * Go to https://pypi.org/manage/account/#api-tokens and create a new API token. If you have the project on PyPI already, limit the token scope to just that project. You can call it something like GitHub Actions CI/CD — project-org/project-repo in order for it to be easily distinguishable in the token list. Don’t close the page just yet — you won’t see that token again.
-# * In a separate browser tab or window, go to the Settings tab of your target repository and then click on Secrets in the left sidebar.
-# * Create a new secret called PYPI_API_TOKEN and copy-paste the token from the first step.
-# * Now, go to https://test.pypi.org/manage/account/#api-tokens and repeat the steps. Save that TestPyPI token on GitHub as TEST_PYPI_API_TOKEN.
-
+# copied from https://docs.pypi.org/trusted-publishers/using-a-publisher/
 name: Upload Python Package
 
 on:
   release:
     types: [published]
-
+    
 permissions:
   contents: read
   id-token: write
-
+  
 jobs:
-  deploy:
-
+  pypi-publish:
+    name: upload release to PyPI
     runs-on: ubuntu-latest
-
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
-    - name: Build package
-      run: python -m build
-
-    - name: Publish package to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository-url: https://test.pypi.org/legacy/
-
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      # retrieve your distributions here
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+      - name: Build package
+        run: python -m build
+      
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

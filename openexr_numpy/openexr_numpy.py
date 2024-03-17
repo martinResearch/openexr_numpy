@@ -11,13 +11,31 @@ UINT = Imath.PixelType(Imath.PixelType.UINT)
 HALF = Imath.PixelType(Imath.PixelType.HALF)
 
 # conventions for channel names according to the number of channels
-channels_names_convention = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
+default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
+
+
+def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -> None:
+    """Set the default channel names for a given number of channels."""
+    global default_channel_names
+    if not num_channels == len(list(channel_names)):
+        raise ValueError(
+            f"Error in the channels_names {channel_names} "
+            f"should be of length {num_channels}."
+        )
+    default_channel_names[num_channels] = channel_names
 
 
 def imwrite(
     file_path: str, image: np.ndarray, channel_names: Optional[Iterable[str]] = None
 ) -> None:
+    """Write an image to an EXR file.
 
+    Args:
+        file_path: str, path to the file
+        image: np.ndarray, image to write
+        channel_names: Optional[Iterable[str]], channel names
+
+    """
     if image.dtype not in [
         np.dtype("float16"),
         np.dtype("float32"),
@@ -38,12 +56,12 @@ def imwrite(
         image = image[..., np.newaxis]
     num_channels = image.shape[2]
     if channel_names is None:
-        if num_channels not in channels_names_convention:
+        if num_channels not in default_channel_names:
             raise ValueError(
                 f"Unsupported number of channels {num_channels}, "
-                f"must be in {channels_names_convention.keys()}."
+                f"must be in {default_channel_names.keys()}."
             )
-        channels_names = channels_names_convention[num_channels]
+        channels_names = default_channel_names[num_channels]
     if not num_channels == len(channels_names):
         raise ValueError(
             f"Error in the channels_names {channels_names} "
@@ -75,6 +93,16 @@ def imwrite(
 
 
 def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.ndarray:
+    """Read an image from an EXR file.
+
+    Args:
+        file_path: str, path to the file
+        channel_names: Optional[Iterable[str]], channel names
+
+    Returns:
+        np.ndarray, image
+
+    """
     # Open the EXR file
     exr_file = OpenEXR.InputFile(file_path)
 
@@ -111,19 +139,16 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
         data[channel_name] = data[channel_name].reshape(size[1], size[0])
 
     num_channels = len(exr_channel_names)
-    if num_channels not in channels_names_convention:
-        raise ValueError(
-            f"Unsupported number of channels {num_channels}, "
-            f"must be {channels_names_convention.keys()}."
-        )
-
     if channel_names is None:
-        if num_channels not in channels_names_convention:
+        if num_channels not in default_channel_names:
             raise ValueError(
-                f"Unsupported number of channels {num_channels}, "
-                f"must be in {channels_names_convention.keys()}."
+                f"Undefined default channel names for number of "
+                f"channels {num_channels}. "
+                "Default names defines for number of channels "
+                f"in {list(default_channel_names.keys())}."
             )
-        channel_names = channels_names_convention[num_channels]
+
+        channel_names = default_channel_names[num_channels]
 
     missing_channels = [
         channel for channel in channel_names if channel not in exr_channel_names
@@ -133,17 +158,9 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
             f"Missing channels {missing_channels} in the file, s"
             f"got {exr_channel_names}, expected {channel_names}"
         )
-    # Merge the channels according to the flags
 
+    # Merge the channels
     image = np.stack([data[channel] for channel in channel_names], axis=-1)
     if len(list(channel_names)) == 1:
         image = image.squeeze()
     return image
-
-
-# test round trip with float32 1 channel
-rgb_image = np.random.rand(12, 30).astype(np.float32)
-file_path = "test.exr"
-imwrite(file_path, rgb_image)
-rgb_image_b = imread(file_path)
-assert np.allclose(rgb_image, rgb_image_b)

@@ -19,7 +19,13 @@ default_channel_names: Dict[int, tuple[str, ...]] = {
 
 
 def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -> None:
-    """Set the default channel names for a given number of channels."""
+    """Set the default channel names for a given number of channels.
+
+    Ags:
+        num_channels: int, number of channels
+        channel_names: Iterable[str], channel names
+
+    """
     global default_channel_names
     if not num_channels == len(list(channel_names)):
         raise ValueError(
@@ -30,7 +36,15 @@ def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -
 
 
 def get_default_channel_names(num_channels: int) -> tuple[str, ...]:
+    """Get the default channel names for a given number of channels.
 
+    Args:
+        num_channels: int, number of channels
+
+    Returns:
+        tuple[str, ...], default channel names
+
+    """
     if num_channels not in default_channel_names:
         raise ValueError(
             f"Undefined default channel names for number of "

@@ -1,6 +1,6 @@
 # openexr_numpy
 
-Making reading and writing OpenEXR images in python easy using numpy arrays.
+Making reading and writing OpenEXR images in python easy using NumPy arrays.
 
 ## Motivation
 
@@ -15,7 +15,7 @@ Writing and reading EXR images with existing package [imageio](https://imageio.r
 Our package is a wrapper around OpenEXR binding that: 
 * can be installed with pip
 * does not require to setup any environment variable before any import 
-* provides `imread` and `imwrite` functions that use numpy arrays using an API similar to the ones used in opencv and imageio. 
+* provides `imread` and `imwrite` functions that use NumPy arrays using an API similar to the ones used in opencv and imageio. 
 * provides `read` and `write` functions that allow to save and load arbitrary number of channels with heterogenous data types.
 
 ## Example usage 
@@ -83,12 +83,12 @@ data_b = read(file_path)
 assert np.allclose(data["red"], data_b["red"])
 assert np.allclose(data["green"], data_b["green"])
 ```
-Each data channel value should be an numpy arrays of dimension 2 and all arrays should have the same width and height.
+Each data channel value should be an NumPy arrays of dimension 2 and all arrays should have the same width and height.
 
 
-### Using numpy structured arrays
+### Using NumPy structured arrays
 
-The `read` and `write` functions also support [numpy structured arrays](https://numpy.org/doc/stable/user/basics.rec.html). The 
+The `read` and `write` functions also support [NumPy structured arrays](https://numpy.org/doc/stable/user/basics.rec.html). The 
 `write` function can take a structure array as input and one simply needs to provide the argument  `structured=True` when reading the data to get back a structured array instead of a dictionary.
 
 Note that the names in the dtype need to be alphabetically sorted in order to get back the same dtype when loading the data.

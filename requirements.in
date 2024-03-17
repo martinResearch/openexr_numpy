@@ -10,11 +10,16 @@ flake8-docstrings
 pip-tools
 pytest
 pylint
+
+# required by the package
+openexr
+imath
 numpy
 
 # for the tests
 imageio
 opencv-python
+
 
 
 

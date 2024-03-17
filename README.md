@@ -25,6 +25,7 @@ imwrite(file_path, bgr_image, channel_names="BGR")
 # read the image with a chosen channel order
 rgb_image_c = imread(file_path, channel_names="BGR")
 ```
+More examples can be found in the tests file [test_openexr_numpy](tests/test_openexr_numpy.py).
 
 The default convention we use for the channels names in the exr file is defined
 in the global variable `default_channel_names` defined as

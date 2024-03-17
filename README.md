@@ -13,7 +13,10 @@ set up a environment variable OPENCV_IO_ENABLE_OPENEXR before the first import o
 
 * [OpenEXR](https://pypi.org/project/OpenEXR/). This is the official python binding for the OpenEXR file format. The documentation for the python API is very limited and the API is quite verbose. 
 
-Our package is a wrapper around OpenEXR binding that can be installed with pip, does not require to setup any environment variable before import and provides a simpler API using numpy arrays that is similar to opencv and imageio. 
+Our package is a wrapper around OpenEXR binding that: 
+* can be installed with pip
+* does not require to setup any environment variable before any import 
+* provides a simple API using numpy arrays that is similar to the APIs used in opencv and imageio. 
 
 ## Example usage 
 
@@ -26,17 +29,22 @@ file_path = "test.exr"
 imwrite(file_path, rgb_image)
 
 # read the image
-rgb_image_b = imread(file_path)
+rgb_image_loaded = imread(file_path)
 
 # read a single channel
 red_channel = imread(file_path, "R")
 
 # write the image with explicit channel names
-bgr_image=rgb_image[:,:,::-1]
+bgr_image = rgb_image[:,:,::-1]
 imwrite(file_path, bgr_image, channel_names="BGR")
 
 # read the image with a chosen channel order
-rgb_image_c = imread(file_path, channel_names="BGR")
+brg_image_loaded = imread(file_path, channel_names="BGR")
+
+# check consistency
+assert np.allclose(red_channel, rgb_image[:, :, 0])
+assert np.allclose(rgb_image, rgb_image_loaded)
+assert np.allclose(bgr_image, brg_image_loaded)
 ```
 More examples can be found in the tests file [test_openexr_numpy](tests/test_openexr_numpy.py).
 
@@ -45,7 +53,7 @@ The default convention we use for the channels names in the exr file is follows 
 default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
 ```
 This convention differs from opencv that uses BGR and BGRA respectively for 3 and 4 channels.
-The channels ordering default convention can modified by the user using the function `set_default_channel_names`, but we recommend providing explicitly the names of the channels instead using the `channel_names` argument.
+The channels ordering default convention can modified by the user using the function `set_default_channel_names`, but we recommend providing explicitly the names of the channels when calling `imread` and `imwrite` instead using the `channel_names` argument.
 
  
 

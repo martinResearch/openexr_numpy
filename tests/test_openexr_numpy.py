@@ -16,7 +16,35 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 import cv2  # noqa: E402
 
 
-def test_exr() -> None:
+def test_readme_example() -> None:
+
+    # generate a 3 channel image
+    rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
+    file_path = "test.exr"
+
+    # write the image
+    imwrite(file_path, rgb_image)
+
+    # read the image
+    rgb_image_loaded = imread(file_path)
+
+    # read a single channel
+    red_channel = imread(file_path, "R")
+
+    # write the image with explicit channel names
+    bgr_image = rgb_image[:, :, ::-1]
+    imwrite(file_path, bgr_image, channel_names="BGR")
+
+    # read the image with a chosen channel order
+    brg_image_loaded = imread(file_path, channel_names="BGR")
+
+    # check consistency
+    assert np.allclose(red_channel, rgb_image[:, :, 0])
+    assert np.allclose(rgb_image, rgb_image_loaded)
+    assert np.allclose(bgr_image, brg_image_loaded)
+
+
+def test_round_trips() -> None:
 
     # test round trip with float32 1 channel
     rgb_image = np.random.rand(12, 30).astype(np.float32)
@@ -88,6 +116,9 @@ def test_exr() -> None:
     channel_r = imread(file_path, "R")
     assert np.allclose(rgb_image[:, :, 0], channel_r)
 
+
+def test_against_opencv() -> None:
+
     # test channel names convention consistency with opencv when using 1 channel
     grey_image = np.random.rand(12, 30).astype(np.float32)
     file_path = "test.exr"
@@ -104,9 +135,8 @@ def test_exr() -> None:
     cv2.imwrite(file_path, bgr_image)
     bgr_image_a = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
     bgr_image_b = imread(file_path)[:, :, ::-1]
-    assert np.allclose(rgb_image, rgb_image_b)
     assert np.allclose(bgr_image_a, bgr_image_b)
-    rgb_image_b = imread(file_path, channel_names="BGR")[:, :, ::-1]
+    bgr_image_b = imread(file_path, channel_names="BGR")
     assert np.allclose(bgr_image, bgr_image_b)
 
     # test channel names convention w.r.t opencv when using 4 channels
@@ -119,6 +149,8 @@ def test_exr() -> None:
     assert np.allclose(bgra_image_a, bgra_image)
     assert np.allclose(bgra_image_b, bgra_image)
 
+
+def test_against_imageio() -> None:
     # test channel names convention consistency with imageio when using 3 channels
     # imageio save the data as float16 and convert to float32 after loading
     # when using the freeimage plugin (which requires to run a download
@@ -154,4 +186,6 @@ def test_exr() -> None:
 
 
 if __name__ == "__main__":
-    test_exr()
+    test_readme_example()
+    test_against_imageio()
+    test_against_opencv()

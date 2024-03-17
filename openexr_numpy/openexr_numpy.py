@@ -1,6 +1,6 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, Literal, Optional, overload
 
 import Imath
 import numpy as np
@@ -56,76 +56,14 @@ def get_default_channel_names(num_channels: int) -> tuple[str, ...]:
     return default_channel_names[num_channels]
 
 
-def imwrite(
-    file_path: str, image: np.ndarray, channel_names: Optional[Iterable[str]] = None
-) -> None:
-    """Write an image to an EXR file.
+def read_dict(file_path: str) -> Dict[str, np.ndarray]:
+    """Read the data from an EXR file.
 
     Args:
         file_path: str, path to the file
-        image: np.ndarray, image to write
-        channel_names: Optional[Iterable[str]], channel names
-
-    """
-    if image.dtype not in [
-        np.dtype("float16"),
-        np.dtype("float32"),
-        np.dtype("uint32"),
-    ]:
-        raise ValueError("The image must be of type float16, float32 or uint32.")
-
-    # Create an OpenEXR header
-    width, height = image.shape[1], image.shape[0]
-    header = OpenEXR.Header(width, height)
-
-    # Determine number of channels
-    if image.ndim not in [2, 3]:
-        raise ValueError(
-            f"Unsupported number of dimensions {image.ndim}, must be 2 or 3."
-        )
-    if image.ndim == 2:
-        image = image[..., np.newaxis]
-    num_channels = image.shape[2]
-    if channel_names is None:
-        channel_names = get_default_channel_names(num_channels)
-    assert channel_names is not None
-    if not num_channels == len(list(channel_names)):
-        raise ValueError(
-            f"Error in the channels_names {channel_names} "
-            f"should be of length {num_channels}."
-        )
-
-    exr_type = {
-        np.dtype("float16"): HALF,
-        np.dtype("float32"): FLOAT,
-        np.dtype("uint32"): UINT,
-    }[image.dtype]
-
-    # Write each channel
-    header["channels"] = {channel: Imath.Channel(exr_type) for channel in channel_names}
-    channels = {
-        channel: image[..., i].tobytes() for i, channel in enumerate(channel_names)
-    }
-
-    # Create the EXR file
-    exr_file = OpenEXR.OutputFile(file_path, header)
-
-    # Write the image data to the file
-    exr_file.writePixels(channels)
-
-    # Close the file
-    exr_file.close()
-
-
-def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.ndarray:
-    """Read an image from an EXR file.
-
-    Args:
-        file_path: str, path to the file
-        channel_names: Optional[Iterable[str]], channel names
 
     Returns:
-        np.ndarray, image
+        Dict[str:np.ndarray], data
 
     """
     # Open the EXR file
@@ -162,7 +100,198 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     # Reshape the data into the image dimensions
     for channel_name in exr_channel_names:
         data[channel_name] = data[channel_name].reshape(size[1], size[0])
+    return data
 
+
+def _get_shape_from_dict(channels: Dict[str, np.ndarray]) -> tuple[int, int]:
+    if len(channels) == 0:
+        raise ValueError("No data to write.")
+    image_shape: Optional[tuple[int, int]] = None
+    for name, image in channels.items():
+        if not image.ndim == 2:
+            raise ValueError(
+                f"The data must be of shape (height, width). "
+                f"the channel {name} has {image.ndim} dimensions."
+            )
+        if image_shape is None:
+            assert len(image.shape) == 2
+            height, width = image.shape
+            image_shape = height, width
+        if not image.shape == image_shape:
+            raise ValueError("All images must have the same shape.")
+    assert image_shape is not None, "image_shape should not be None at this point"
+    return image_shape
+
+
+def write_dict(file_path: str, channels: Dict[str, np.ndarray]) -> None:
+
+    image_shape = _get_shape_from_dict(channels)
+
+    exr_types = {}
+    for name, image in channels.items():
+
+        if image.dtype not in [
+            np.dtype("float16"),
+            np.dtype("float32"),
+            np.dtype("uint32"),
+        ]:
+            raise ValueError(
+                f"The data {name} must be of type float16, float32 or uint32."
+            )
+        exr_types[name] = {
+            np.dtype("float16"): HALF,
+            np.dtype("float32"): FLOAT,
+            np.dtype("uint32"): UINT,
+        }[image.dtype]
+
+    height, width = image_shape
+    header = OpenEXR.Header(width, height)
+
+    # Write each channel
+    header["channels"] = {
+        name: Imath.Channel(exr_type) for name, exr_type in exr_types.items()
+    }
+    channels_bytes = {
+        name: numpy_array.tobytes() for name, numpy_array in channels.items()
+    }
+
+    # Create the EXR file
+    exr_file = OpenEXR.OutputFile(file_path, header)
+
+    # Write the image data to the file
+    exr_file.writePixels(channels_bytes)
+
+    # Close the file
+    exr_file.close()
+
+
+def dict_to_structured_array(data: Dict[str, np.ndarray]) -> np.ndarray:
+    """Convert a dictionary of numpy arrays to a structured numpy array.
+
+    Args:
+        data: Dict[str, np.ndarray], data
+
+    Returns:
+        np.ndarray, structured array
+
+    """
+    # Create the structured array
+    dtype = [(name, channel.dtype) for name, channel in data.items()]
+    image_shape = _get_shape_from_dict(data)
+    structured_array = np.empty(image_shape, dtype=dtype)
+
+    # Fill the structured array
+    for name, array in data.items():
+        structured_array[name] = array
+    return structured_array
+
+
+def dict_from_structured_array(structured_array: np.ndarray) -> Dict[str, np.ndarray]:
+    channels = {
+        name: structured_array[name] for name in structured_array.dtype.fields.keys()
+    }
+    return channels
+
+
+def read_structured_array(file_path: str) -> np.ndarray:
+    """Read the data from an EXR file as a structured numpy array."""
+    return dict_to_structured_array(read_dict(file_path))
+
+
+def write_structured_array(file_path: str, structured_array: np.ndarray) -> None:
+    """Write a structured numpy array to an EXR file."""
+    names = list(structured_array.dtype.fields.keys())
+    # check the names are sorted alphabetically
+    if not names == sorted(names):
+        raise ValueError(
+            "The names of the fields in the structured array "
+            "must be sorted alphabetically in order for the data"
+            "to be loaded in the same order from the exr file."
+        )
+    write_dict(file_path, dict_from_structured_array(structured_array))
+
+
+@overload
+def read(file_path: str, structured: Literal[False]) -> Dict[str, np.ndarray]:
+    ...
+
+
+@overload
+def read(file_path: str, structured: Literal[True]) -> np.ndarray:
+    ...
+
+
+def read(
+    file_path: str, structured: bool = False
+) -> np.ndarray | Dict[str, np.ndarray]:
+    """Read the data from an EXR file as a structured numpy array."""
+    if structured:
+        return read_structured_array(file_path)
+    else:
+        return read_dict(file_path)
+
+
+def write(file_path: str, data: np.ndarray | Dict[str, np.ndarray]) -> None:
+    """Write a structured numpy array or dict to an EXR file."""
+    if isinstance(data, np.ndarray):
+        write_structured_array(file_path, data)
+    else:
+        write_dict(file_path, data)
+
+
+def imwrite(
+    file_path: str, image: np.ndarray, channel_names: Optional[Iterable[str]] = None
+) -> None:
+    """Write an image to an EXR file.
+
+    Args:
+        file_path: str, path to the file
+        image: np.ndarray, image to write
+        channel_names: Optional[Iterable[str]], channel names
+
+    """
+    if image.dtype not in [
+        np.dtype("float16"),
+        np.dtype("float32"),
+        np.dtype("uint32"),
+    ]:
+        raise ValueError("The image must be of type float16, float32 or uint32.")
+
+    # Determine number of channels
+    if image.ndim not in [2, 3]:
+        raise ValueError(
+            f"Unsupported number of dimensions {image.ndim}, must be 2 or 3."
+        )
+    if image.ndim == 2:
+        image = image[..., np.newaxis]
+    num_channels = image.shape[2]
+    if channel_names is None:
+        channel_names = get_default_channel_names(num_channels)
+    assert channel_names is not None
+    if not num_channels == len(list(channel_names)):
+        raise ValueError(
+            f"Error in the channels_names {channel_names} "
+            f"should be of length {num_channels}."
+        )
+
+    channels = {channel: image[..., i] for i, channel in enumerate(channel_names)}
+    write_dict(file_path, channels)
+
+
+def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.ndarray:
+    """Read an image from an EXR file.
+
+    Args:
+        file_path: str, path to the file
+        channel_names: Optional[Iterable[str]], channel names
+
+    Returns:
+        np.ndarray, image
+
+    """
+    data = read_dict(file_path)
+
+    exr_channel_names = list(data.keys())
     num_channels = len(exr_channel_names)
 
     if channel_names is None:
@@ -173,7 +302,7 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     ]
     if missing_channels:
         raise ValueError(
-            f"Missing channels {missing_channels} in the file, s"
+            f"Missing channels {missing_channels} in the file, "
             f"got {exr_channel_names}, expected {channel_names}"
         )
 

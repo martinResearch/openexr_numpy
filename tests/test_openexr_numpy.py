@@ -5,7 +5,7 @@ import os
 import imageio.v3 as imageio
 import numpy as np
 
-from openexr_numpy import imread, imwrite
+from openexr_numpy import imread, imwrite, read, write
 
 # Enabling openexr support in opencv by settign the
 # OPENCV_IO_ENABLE_OPENEXR environment variable
@@ -44,7 +44,7 @@ def test_readme_example() -> None:
     assert np.allclose(bgr_image, brg_image_loaded)
 
 
-def test_round_trips() -> None:
+def test_imread_imwrite_round_trips() -> None:
 
     # test round trip with float32 1 channel
     rgb_image = np.random.rand(12, 30).astype(np.float32)
@@ -117,6 +117,25 @@ def test_round_trips() -> None:
     assert np.allclose(rgb_image[:, :, 0], channel_r)
 
 
+def test_using_dicts() -> None:
+    # Create a two-channel image with different types and custom names
+    data = {
+        "red": np.random.rand(12, 30).astype(np.float32),
+        "green": np.random.rand(12, 30).astype(np.uint32),
+    }
+    file_path = "test.exr"
+
+    # Write the data
+    write(file_path, data)
+
+    # Read the data
+    data_b = read(file_path, structured=False)
+
+    # Check the process is lossless
+    assert np.allclose(data["red"], data_b["red"])
+    assert np.allclose(data["green"], data_b["green"])
+
+
 def test_against_opencv() -> None:
 
     # test channel names convention consistency with opencv when using 1 channel
@@ -185,7 +204,31 @@ def test_against_imageio() -> None:
     assert np.allclose(grey_image_a, grey_image_b)
 
 
+def test_using_structured_arrays() -> None:
+    # Define the structured array type
+    dtype = np.dtype([("green", np.float32), ("red", np.uint32)])
+
+    # Initialize the structured array with zeros
+    data = np.zeros((12, 30), dtype=dtype)
+    data["red"] = np.random.rand(12, 30).astype(np.float32)
+    data["green"] = np.random.rand(12, 30).astype(np.uint32)
+
+    # Write the data
+    file_path = "test.exr"
+    write(file_path, data)
+
+    # Read the data
+    data_loaded = read(file_path, structured=True)
+
+    # Check the process is lossless
+    assert data_loaded.dtype == dtype
+    assert np.allclose(data["red"], data_loaded["red"])
+    assert np.allclose(data["green"], data_loaded["green"])
+
+
 if __name__ == "__main__":
+    test_using_structured_arrays()
+    test_using_dicts()
     test_readme_example()
     test_against_imageio()
     test_against_opencv()

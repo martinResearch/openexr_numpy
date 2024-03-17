@@ -20,6 +20,7 @@ Our package is a wrapper around OpenEXR binding that:
 
 ## Example usage 
 
+### Using imread and imwrite
 ```
 # generate a 3 channel image
 rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
@@ -46,14 +47,43 @@ assert np.allclose(red_channel, rgb_image[:, :, 0])
 assert np.allclose(rgb_image, rgb_image_loaded)
 assert np.allclose(bgr_image, brg_image_loaded)
 ```
+
+
 More examples can be found in the tests file [test_openexr_numpy](tests/test_openexr_numpy.py).
 
 The default convention we use for the channel names in the exr file is follows the convention used by imageio and is defined in the global variable `default_channel_names` defined as
 ```
-default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
+default_channel_names: Dict[int, tuple[str, ...]] = {
+    1: ("Y",),
+    3: ("R", "G", "B"),
+    4: ("R", "G", "B", "A"),
+}
 ```
 This convention differs from opencv that uses BGR and BGRA respectively for 3 and 4 channels.
 The channels ordering default convention can modified by the user using the function `set_default_channel_names`, but we recommend providing explicitly the names of the channels when calling `imread` and `imwrite` instead using the `channel_names` argument.
+
+### Using read_data and write_data
+
+One can use the functin `read_data` and `write_data` to get more flexible lower level access to OpenEXR with different data type for each channel: 
+```
+# Create a two-channel image with different types and custom names
+data = {
+    "red": np.random.rand(12, 30).astype(np.float32),
+    "green": np.random.rand(12, 30).astype(np.uint32),
+}
+file_path = "test.exr"
+
+# Write the data
+write_data(file_path, data)
+
+# Read the data
+data_b = read_data(file_path)
+
+# Check the process is lossless
+assert np.allclose(data["red"], data_b["red"])
+assert np.allclose(data["green"], data_b["green"])
+```
+Each data channel value should be an numpy arrays of dimension 2 and all arrays should have the same width and height.
 
  
 

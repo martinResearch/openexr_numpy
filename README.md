@@ -35,7 +35,7 @@ This can be modified by the user, but we recommend providing explictly the names
 
 ## Alternative
 
-* [imageio](https://imageio.readthedocs.io/en/stable/) uses the freeimage plugin to load and read exr image, but this plugin does not have a permissive license is not installed by default with imageio and cannot be installed with pip (see issue [here](https://github.com/imageio/imageio/issues/809))
+* [imageio](https://imageio.readthedocs.io/en/stable/) uses the freeimage plugin to load and read exr images, but this plugin does not have a permissive license and thus is not installed by default with imageio and cannot be installed with pip (see issue [here](https://github.com/imageio/imageio/issues/809))
 
 * [opencv-python](https://pypi.org/project/opencv-python/) allows to save and read exr images but it requires to 
 set up a environment variable before the import on windows. See issue [here](https://github.com/opencv/opencv/issues/24470).

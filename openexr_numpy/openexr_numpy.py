@@ -19,9 +19,15 @@ HALF = Imath.PixelType(Imath.PixelType.HALF)
 channels_names_convention = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
 
 
-def imwrite(file_path, image, channel_names: Optional[Iterable[str]] = None):
+def imwrite(
+    file_path: str, image: np.ndarray, channel_names: Optional[Iterable[str]] = None
+) -> None:
 
-    if image.dtype not in [np.dtype("float16"), np.dtype("float32"), np.dtype("uint32")]:
+    if image.dtype not in [
+        np.dtype("float16"),
+        np.dtype("float32"),
+        np.dtype("uint32"),
+    ]:
         raise ValueError("The image must be of type float16, float32 or uint32.")
 
     # Create an OpenEXR header
@@ -30,7 +36,9 @@ def imwrite(file_path, image, channel_names: Optional[Iterable[str]] = None):
 
     # Determine number of channels
     if image.ndim not in [2, 3]:
-        raise ValueError(f"Unsupported number of dimensions {image.ndim}, must be 2 or 3.")
+        raise ValueError(
+            f"Unsupported number of dimensions {image.ndim}, must be 2 or 3."
+        )
     if image.ndim == 2:
         image = image[..., np.newaxis]
     num_channels = image.shape[2]
@@ -41,13 +49,23 @@ def imwrite(file_path, image, channel_names: Optional[Iterable[str]] = None):
             )
         channels_names = channels_names_convention[num_channels]
     if not num_channels == len(channels_names):
-        raise ValueError(f"Error in the channels_names {channels_names} should be of length {num_channels}.")
+        raise ValueError(
+            f"Error in the channels_names {channels_names} should be of length {num_channels}."
+        )
 
-    exr_type = {np.dtype("float16"): HALF, np.dtype("float32"): FLOAT, np.dtype("uint32"): UINT}[image.dtype]
+    exr_type = {
+        np.dtype("float16"): HALF,
+        np.dtype("float32"): FLOAT,
+        np.dtype("uint32"): UINT,
+    }[image.dtype]
 
     # Write each channel
-    header["channels"] = {channel: Imath.Channel(exr_type) for channel in channels_names}
-    channels = {channel: image[..., i].tobytes() for i, channel in enumerate(channels_names)}
+    header["channels"] = {
+        channel: Imath.Channel(exr_type) for channel in channels_names
+    }
+    channels = {
+        channel: image[..., i].tobytes() for i, channel in enumerate(channels_names)
+    }
 
     # Create the EXR file
     exr_file = OpenEXR.OutputFile(file_path, header)
@@ -95,7 +113,9 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
 
     num_channels = len(exr_channel_names)
     if num_channels not in channels_names_convention:
-        raise ValueError(f"Unsupported number of channels {num_channels}, must be {channels_names_convention.keys()}.")
+        raise ValueError(
+            f"Unsupported number of channels {num_channels}, must be {channels_names_convention.keys()}."
+        )
 
     if channel_names is None:
         if num_channels not in channels_names_convention:
@@ -104,7 +124,9 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
             )
         channel_names = channels_names_convention[num_channels]
 
-    missing_channels = [channel for channel in channel_names if channel not in exr_channel_names]
+    missing_channels = [
+        channel for channel in channel_names if channel not in exr_channel_names
+    ]
     if missing_channels:
         raise ValueError(
             f"Missing channels {missing_channels} in the file, got {exr_channel_names}, expected {channel_names}"
@@ -112,7 +134,6 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     # Merge the channels according to the flags
 
     image = np.stack([data[channel] for channel in channel_names], axis=-1)
-    if len(channel_names) == 1:
+    if len(list(channel_names)) == 1:
         image = image.squeeze()
     return image
-

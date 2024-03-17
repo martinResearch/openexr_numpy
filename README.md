@@ -1,29 +1,29 @@
 # openexr_numpy
 
-Simple numpy interface to the OpenEXR image file format.
+A simple interface to the OpenEXR image file format using numpy arrays
 
 ## Example usage 
 
 ```
-    # generate a 3 channel image
-    rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
-    file_path = "test.exr"
-    
-    # write the image
-    imwrite(file_path, rgb_image)
-    
-    # read the image
-    rgb_image_b = imread(file_path)
+# generate a 3 channel image
+rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
+file_path = "test.exr"
 
-    # read a single channel
-    red_channel = imread(file_path, "R")
+# write the image
+imwrite(file_path, rgb_image)
 
-    # write the image with explicit channel names
-    bgr_image=rgb_image[:,:,::-1]
-    imwrite(file_path, bgr_image, channel_names="BGR")
+# read the image
+rgb_image_b = imread(file_path)
 
-    # read the image with a chosen channel order
-    rgb_image_c = imread(file_path, channel_names="BGR")
+# read a single channel
+red_channel = imread(file_path, "R")
+
+# write the image with explicit channel names
+bgr_image=rgb_image[:,:,::-1]
+imwrite(file_path, bgr_image, channel_names="BGR")
+
+# read the image with a chosen channel order
+rgb_image_c = imread(file_path, channel_names="BGR")
 ```
 
 The default convention we use for the channels names in the exr file is defined

@@ -1,6 +1,6 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict
 
 import Imath
 import numpy as np
@@ -11,7 +11,11 @@ UINT = Imath.PixelType(Imath.PixelType.UINT)
 HALF = Imath.PixelType(Imath.PixelType.HALF)
 
 # conventions for channel names according to the number of channels
-default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
+default_channel_names: Dict[int, tuple[str, ...]] = {
+    1: ("Y",),
+    3: ("R", "G", "B"),
+    4: ("R", "G", "B", "A"),
+}
 
 
 def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -> None:
@@ -23,6 +27,19 @@ def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -
             f"should be of length {num_channels}."
         )
     default_channel_names[num_channels] = tuple(channel_names)
+
+
+def get_default_channel_names(num_channels: int) -> tuple[str, ...]:
+
+    if num_channels not in default_channel_names:
+        raise ValueError(
+            f"Undefined default channel names for number of "
+            f"channels {num_channels}. "
+            "Default names are currently only defined for the following "
+            f"number of channels: {list(default_channel_names.keys())}. "
+            "You can add new default names using set_default_channel_names."
+        )
+    return default_channel_names[num_channels]
 
 
 def imwrite(
@@ -56,15 +73,11 @@ def imwrite(
         image = image[..., np.newaxis]
     num_channels = image.shape[2]
     if channel_names is None:
-        if num_channels not in default_channel_names:
-            raise ValueError(
-                f"Unsupported number of channels {num_channels}, "
-                f"must be in {default_channel_names.keys()}."
-            )
-        channels_names = default_channel_names[num_channels]
-    if not num_channels == len(channels_names):
+        channel_names = get_default_channel_names(num_channels)
+    assert channel_names is not None
+    if not num_channels == len(list(channel_names)):
         raise ValueError(
-            f"Error in the channels_names {channels_names} "
+            f"Error in the channels_names {channel_names} "
             f"should be of length {num_channels}."
         )
 
@@ -75,11 +88,9 @@ def imwrite(
     }[image.dtype]
 
     # Write each channel
-    header["channels"] = {
-        channel: Imath.Channel(exr_type) for channel in channels_names
-    }
+    header["channels"] = {channel: Imath.Channel(exr_type) for channel in channel_names}
     channels = {
-        channel: image[..., i].tobytes() for i, channel in enumerate(channels_names)
+        channel: image[..., i].tobytes() for i, channel in enumerate(channel_names)
     }
 
     # Create the EXR file
@@ -139,16 +150,9 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
         data[channel_name] = data[channel_name].reshape(size[1], size[0])
 
     num_channels = len(exr_channel_names)
-    if channel_names is None:
-        if num_channels not in default_channel_names:
-            raise ValueError(
-                f"Undefined default channel names for number of "
-                f"channels {num_channels}. "
-                "Default names defines for number of channels "
-                f"in {list(default_channel_names.keys())}."
-            )
 
-        channel_names = default_channel_names[num_channels]
+    if channel_names is None:
+        channel_names = get_default_channel_names(num_channels)
 
     missing_channels = [
         channel for channel in channel_names if channel not in exr_channel_names

@@ -1,15 +1,10 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-import numpy as np
-import os
-import OpenEXR
+from typing import Iterable, Optional
+
 import Imath
-import imageio.v3 as imageio
-from typing import Optional, Iterable
-
-os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
-import cv2
-
+import numpy as np
+import OpenEXR
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
 UINT = Imath.PixelType(Imath.PixelType.UINT)
@@ -45,12 +40,14 @@ def imwrite(
     if channel_names is None:
         if num_channels not in channels_names_convention:
             raise ValueError(
-                f"Unsupported number of channels {num_channels}, must be in {channels_names_convention.keys()}."
+                f"Unsupported number of channels {num_channels}, "
+                f"must be in {channels_names_convention.keys()}."
             )
         channels_names = channels_names_convention[num_channels]
     if not num_channels == len(channels_names):
         raise ValueError(
-            f"Error in the channels_names {channels_names} should be of length {num_channels}."
+            f"Error in the channels_names {channels_names} "
+            f"should be of length {num_channels}."
         )
 
     exr_type = {
@@ -100,12 +97,14 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
         # Read each channel as numpy array
         exr_type = header["channels"][channel_name]
         if exr_type == Imath.Channel(HALF):
-            dtype = np.float16
+            dtype_str = "float16"
         elif exr_type == Imath.Channel(FLOAT):
-            dtype = np.float32
+            dtype_str = "float32"
         elif exr_type == Imath.Channel(UINT):
-            dtype = np.uint32
-        data[channel_name] = np.frombuffer(exr_file.channel(channel_name), dtype=dtype)
+            dtype_str = "uint32"
+        data[channel_name] = np.frombuffer(
+            exr_file.channel(channel_name), dtype=np.dtype(dtype_str)
+        )
 
     # Reshape the data into the image dimensions
     for channel_name in exr_channel_names:
@@ -114,13 +113,15 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     num_channels = len(exr_channel_names)
     if num_channels not in channels_names_convention:
         raise ValueError(
-            f"Unsupported number of channels {num_channels}, must be {channels_names_convention.keys()}."
+            f"Unsupported number of channels {num_channels}, "
+            f"must be {channels_names_convention.keys()}."
         )
 
     if channel_names is None:
         if num_channels not in channels_names_convention:
             raise ValueError(
-                f"Unsupported number of channels {num_channels}, must be in {channels_names_convention.keys()}."
+                f"Unsupported number of channels {num_channels}, "
+                f"must be in {channels_names_convention.keys()}."
             )
         channel_names = channels_names_convention[num_channels]
 
@@ -129,7 +130,8 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     ]
     if missing_channels:
         raise ValueError(
-            f"Missing channels {missing_channels} in the file, got {exr_channel_names}, expected {channel_names}"
+            f"Missing channels {missing_channels} in the file, s"
+            f"got {exr_channel_names}, expected {channel_names}"
         )
     # Merge the channels according to the flags
 
@@ -137,3 +139,11 @@ def imread(file_path: str, channel_names: Optional[Iterable[str]] = None) -> np.
     if len(list(channel_names)) == 1:
         image = image.squeeze()
     return image
+
+
+# test round trip with float32 1 channel
+rgb_image = np.random.rand(12, 30).astype(np.float32)
+file_path = "test.exr"
+imwrite(file_path, rgb_image)
+rgb_image_b = imread(file_path)
+assert np.allclose(rgb_image, rgb_image_b)

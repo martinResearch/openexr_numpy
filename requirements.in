@@ -10,6 +10,7 @@ flake8-docstrings
 pip-tools
 pytest
 pylint
+numpy
 
 
 

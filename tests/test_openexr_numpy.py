@@ -1,13 +1,16 @@
 """Module to read and write EXR image files into and from numpy arrays."""
 
-import numpy as np
 import os
 
 import imageio.v3 as imageio
+import numpy as np
+
 from openexr_numpy import imread, imwrite
 
+# enable openexr support in opencv
+# this need to be done before the import on windows
 os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
-import cv2
+import cv2  # noqa: E402
 
 
 def test_exr() -> None:

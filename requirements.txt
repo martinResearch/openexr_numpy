@@ -62,6 +62,8 @@ mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
+numpy==1.26.4
+    # via -r requirements.in
 packaging==23.0
     # via
     #   black
@@ -97,6 +99,7 @@ tomli==2.0.1
     #   build
     #   mypy
     #   pylint
+    #   pyproject-hooks
     #   pytest
 tomlkit==0.11.7
     # via pylint

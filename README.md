@@ -62,9 +62,9 @@ default_channel_names: Dict[int, tuple[str, ...]] = {
 This convention differs from opencv that uses BGR and BGRA respectively for 3 and 4 channels.
 The channels ordering default convention can modified by the user using the function `set_default_channel_names`, but we recommend providing explicitly the names of the channels when calling `imread` and `imwrite` instead using the `channel_names` argument.
 
-### Using read_data and write_data
+### Using dictionaries
 
-One can use the functin `read_data` and `write_data` to get more flexible lower level access to OpenEXR with different data type for each channel: 
+One can use the function `read` and `write` to get more flexible lower level access to OpenEXR with different data type for each channel: 
 ```
 # Create a two-channel image with different types and custom names
 data = {
@@ -74,10 +74,10 @@ data = {
 file_path = "test.exr"
 
 # Write the data
-write_data(file_path, data)
+write(file_path, data)
 
 # Read the data
-data_b = read_data(file_path)
+data_b = read(file_path)
 
 # Check the process is lossless
 assert np.allclose(data["red"], data_b["red"])
@@ -85,7 +85,32 @@ assert np.allclose(data["green"], data_b["green"])
 ```
 Each data channel value should be an numpy arrays of dimension 2 and all arrays should have the same width and height.
 
- 
+
+### Using numpy structured arrays
+
+The `read` and `write` functions also support [numpy structured arrays](https://numpy.org/doc/stable/user/basics.rec.html). The 
+`write` function can take a structure array as input and one simply needs to provide the argument  `structured=True` when reading the data to get back a structured array instead of a dictionary.
+```
+# Define the structured array type
+dtype = np.dtype([("green", np.float32), ("red", np.uint32)])
+
+# Initialize the structured array with zeros
+data = np.zeros((12, 30), dtype=dtype)
+data["red"] = np.random.rand(12, 30).astype(np.float32)
+data["green"] = np.random.rand(12, 30).astype(np.uint32)
+
+# Write the data
+file_path = "test.exr"
+write(file_path, data)
+
+# Read the data
+data_loaded = read(file_path, structured=True)
+
+# Check the process is lossless
+assert data_loaded.dtype == dtype
+assert np.allclose(data["red"], data_loaded["red"])
+assert np.allclose(data["green"], data_loaded["green"])
+ ```
 
 
 

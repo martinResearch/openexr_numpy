@@ -12,7 +12,9 @@ pytest
 pylint
 numpy
 
-
+# for the tests
+imageio
+opencv-python
 
 
 

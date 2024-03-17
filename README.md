@@ -27,11 +27,11 @@ rgb_image_c = imread(file_path, channel_names="BGR")
 ```
 
 The default convention we use for the channels names in the exr file is defined
-in the global variable `channels_names_convention` defined as
+in the global variable `default_channel_names` defined as
 ```
-channels_names_convention = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
+default_channel_names = {1: ("Y"), 3: ("R", "G", "B"), 4: ("R", "G", "B", "A")}
 ```
-This can be modified by the user, but we recommend providing explictly the names of the channels instead using the `channel_names` argument
+This can be modified by the user using the function `set_default_channel_names`, but we recommend providing explicitly the names of the channels instead using the `channel_names` argument.
 
 ## Alternative
 

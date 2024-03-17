@@ -22,7 +22,7 @@ def set_default_channel_names(num_channels: int, channel_names: Iterable[str]) -
             f"Error in the channels_names {channel_names} "
             f"should be of length {num_channels}."
         )
-    default_channel_names[num_channels] = channel_names
+    default_channel_names[num_channels] = tuple(channel_names)
 
 
 def imwrite(

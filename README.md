@@ -16,8 +16,7 @@ set up a environment variable OPENCV_IO_ENABLE_OPENEXR before the first import o
 Our package is a wrapper around OpenEXR binding that: 
 * can be installed with pip
 * does not require to setup any environment variable before any import 
-* provides `imread` and `imwrite` functions thay use numpy arrays and have a similar APIs to the functions with the same name in opencv and imageio.
-* provides `read` and `write` functions that allow to write and read data with heterogenous channels types using either dictionaries or numpy structure arrays.
+* provides a simple API using numpy arrays that is similar to the APIs used in opencv and imageio. 
 
 ## Example usage 
 
@@ -91,6 +90,10 @@ Each data channel value should be an numpy arrays of dimension 2 and all arrays 
 
 The `read` and `write` functions also support [numpy structured arrays](https://numpy.org/doc/stable/user/basics.rec.html). The 
 `write` function can take a structure array as input and one simply needs to provide the argument  `structured=True` when reading the data to get back a structured array instead of a dictionary.
+
+Note that the names in the dtype need to be alphabetically sorted in order to get back the same dtype when loading the data.
+
+Example:
 ```
 # Define the structured array type
 dtype = np.dtype([("green", np.float32), ("red", np.uint32)])

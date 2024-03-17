@@ -129,7 +129,7 @@ def test_using_dicts() -> None:
     write(file_path, data)
 
     # Read the data
-    data_b = read(file_path, structured=False)
+    data_b = read(file_path)
 
     # Check the process is lossless
     assert np.allclose(data["red"], data_b["red"])
@@ -227,8 +227,8 @@ def test_using_structured_arrays() -> None:
 
 
 if __name__ == "__main__":
-    test_using_structured_arrays()
     test_using_dicts()
+    test_using_structured_arrays()
     test_readme_example()
     test_against_imageio()
     test_against_opencv()

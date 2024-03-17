@@ -212,6 +212,11 @@ def write_structured_array(file_path: str, structured_array: np.ndarray) -> None
 
 
 @overload
+def read(file_path: str) -> Dict[str, np.ndarray]:
+    ...
+
+
+@overload
 def read(file_path: str, structured: Literal[False]) -> Dict[str, np.ndarray]:
     ...
 

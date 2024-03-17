@@ -8,7 +8,7 @@
 
 # A guide on how to create the screts secrets.PYPI_API_TOKEN and secrets.TEST_PYPI_API_TOKEN
 # here https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
-# The main staeps are:
+# The main steps are:
 # * Go to https://pypi.org/manage/account/#api-tokens and create a new API token. If you have the project on PyPI already, limit the token scope to just that project. You can call it something like GitHub Actions CI/CD — project-org/project-repo in order for it to be easily distinguishable in the token list. Don’t close the page just yet — you won’t see that token again.
 # * In a separate browser tab or window, go to the Settings tab of your target repository and then click on Secrets in the left sidebar.
 # * Create a new secret called PYPI_API_TOKEN and copy-paste the token from the first step.

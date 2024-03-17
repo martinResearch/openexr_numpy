@@ -17,7 +17,7 @@ Our package is a wrapper around OpenEXR binding that:
 * can be installed with pip
 * does not require to setup any environment variable before any import 
 * provides `imread` and `imwrite` functions thay use numpy arrays and have a similar APIs to the functions with the same name in opencv and imageio.
-* provides `read` ansd `write` function that allow to write and read data with heterogenous channels types using either dictionaries or numpy structure arrays.
+* provides `read` and `write` functions that allow to write and read data with heterogenous channels types using either dictionaries or numpy structure arrays.
 
 ## Example usage 
 

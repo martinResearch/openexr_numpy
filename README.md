@@ -18,7 +18,9 @@ Our package is a wrapper around the official [OpenEXR](https://pypi.org/project/
 * can be installed with pip
 * does not require to setup any environment variable before any import 
 * provides `imread` and `imwrite` functions that use NumPy arrays using an API similar to the ones used in opencv and imageio. 
-* provides `read` and `write` functions that allow to save and load arbitrary number of channels with heterogenous data types.
+* provides `read` and `write` functions that allow to save and load arbitrary number of channels with heterogenous data types using dictionaries or NumPy structured arrays.
+
+Note: the package [pyexr](https://pypi.org/project/pyexr/)) is very similar to this project. It also aims at simplifying writing and reading EXR files by wrapping the OpenEXR package and provides very similar features and APIs. Note that is does not support NumPy structured arrays.
 
 ## Example usage 
 

@@ -26,6 +26,9 @@ Note: the package [pyexr](https://pypi.org/project/pyexr/) is very similar to th
 
 ### Using imread and imwrite
 ```
+import numpy as np
+from openexr_numpy import imread, imwrite
+
 # generate a 3 channel image
 rgb_image = np.random.rand(12, 30, 3).astype(np.float32)
 file_path = "test.exr"

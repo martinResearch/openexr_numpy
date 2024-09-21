@@ -2,6 +2,13 @@
 
 Making reading and writing OpenEXR images in python easy using NumPy arrays.
 
+## Installation
+
+The package is published on pypi.org [here](https://pypi.org/project/openexr-numpy/). The package can be simply installed using
+```
+pip install openexr_numpy
+```
+
 ## Motivation
 
 Writing and reading EXR images with existing package [imageio](https://imageio.readthedocs.io/en/stable/), [opencv-python](https://pypi.org/project/opencv-python/), [OpenEXR](https://pypi.org/project/OpenEXR/) or [OpenImageIO](https://openimageio.readthedocs.io/en/v2.5.9.0/) has currently inconvenient limitations:

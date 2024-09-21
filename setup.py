@@ -33,4 +33,5 @@ setup(
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/martinResearch/openexr_numpy",
+    python_requires=">=3.8"
 )

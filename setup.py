@@ -28,7 +28,7 @@ setup(
     license="MIT",
     ext_modules=[],  # additional source file(s)),
     include_dirs=[],
-    package_data={},
+    package_data={"openexr_numpy": ["py.typed"]},
     install_requires=["numpy", "openexr", "imath"],
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
